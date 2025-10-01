@@ -42,11 +42,11 @@ Bu proje, yazılım geliştirme süreçlerinde kod kalitesini artırmak ve insan
 ## 4. Teknoloji Yığını
 | Katman | Teknoloji |
 |--------|-----------|
-| Backend | Node.js (Express/NestJS) veya ASP.NET Core |
+| ASP.NET Core |
 | AI & Kod Analizi | OpenAI GPT-4/5 API, Tree-sitter, ESLint, Pylint, SonarQube |
-| Veritabanı | PostgreSQL veya MongoDB |
+| Veritabanı | Mssql |
 | CI/CD | GitHub Actions / GitLab CI |
-| Frontend (Opsiyonel) | React / Angular |
+| Frontend (Opsiyonel) | ASP.NET Core MVC |
 
 ---
 
