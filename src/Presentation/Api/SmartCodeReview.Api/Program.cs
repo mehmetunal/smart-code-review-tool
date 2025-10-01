@@ -2,10 +2,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using FluentValidation;
+using SmartCodeReview.Api.BackgroundServices;
 using SmartCodeReview.Api.Extensions;
 using SmartCodeReview.Api.Middleware;
 using SmartCodeReview.Data.Mssql;
+using SmartCodeReview.Dto.Mssql.Validators;
 using SmartCodeReview.Mssql;
+using SmartCodeReview.Mssql.Services.Interfaces;
+using SmartCodeReview.Mssql.Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +26,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // FluentValidation
-builder.Services.AddValidatorsFromAssemblyContaining<SmartCodeReview.Dto.Mssql.Validators.RegisterDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
 
 // Redis connection
 builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
@@ -33,19 +37,14 @@ builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
 });
 
 // Service registrations
-builder.Services.AddScoped<SmartCodeReview.Mssql.Services.Interfaces.ICodeReviewService, 
-    SmartCodeReview.Mssql.Services.Services.CodeReviewService>();
-builder.Services.AddScoped<SmartCodeReview.Mssql.Services.Interfaces.IGitHubService, 
-    SmartCodeReview.Mssql.Services.Services.GitHubService>();
-builder.Services.AddSingleton<SmartCodeReview.Mssql.Services.Interfaces.IWebhookQueueService, 
-    SmartCodeReview.Mssql.Services.Services.WebhookQueueService>();
-builder.Services.AddScoped<SmartCodeReview.Mssql.Services.Interfaces.IAIService, 
-    SmartCodeReview.Mssql.Services.Services.OllamaAIService>();
-builder.Services.AddScoped<SmartCodeReview.Mssql.Services.Interfaces.IApiConfigurationService, 
-    SmartCodeReview.Mssql.Services.Services.ApiConfigurationService>();
+builder.Services.AddScoped<ICodeReviewService, CodeReviewService>();
+builder.Services.AddScoped<IGitHubService, GitHubService>();
+builder.Services.AddSingleton<IWebhookQueueService, WebhookQueueService>();
+builder.Services.AddScoped<IAIService, OllamaAIService>();
+builder.Services.AddScoped<IApiConfigurationService, ApiConfigurationService>();
 
 // Background services
-builder.Services.AddHostedService<SmartCodeReview.Api.BackgroundServices.WebhookProcessorWorker>();
+builder.Services.AddHostedService<WebhookProcessorWorker>();
 
 // Database connection
 builder.Services.AddDbContext<SmartCodeReviewDbContext>(options =>
