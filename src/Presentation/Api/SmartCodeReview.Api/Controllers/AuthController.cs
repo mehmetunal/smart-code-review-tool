@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SmartCodeReview.Data.Mssql;
+using SmartCodeReview.Dto.Mssql.Auth;
 
 namespace SmartCodeReview.Api.Controllers;
 
@@ -97,16 +98,4 @@ public class AuthController : ControllerBase
         }
     }
 }
-
-// Basit DTO'lar
-public record RegisterDto(
-    string Email,
-    string Password,
-    string FirstName,
-    string LastName);
-
-public record LoginDto(
-    string Email,
-    string Password,
-    bool RememberMe = false);
 

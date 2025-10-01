@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using FluentValidation;
+using SmartCodeReview.Api.Extensions;
+using SmartCodeReview.Api.Middleware;
 using SmartCodeReview.Data.Mssql;
 using SmartCodeReview.Mssql;
 
@@ -17,6 +20,30 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<SmartCodeReview.Dto.Mssql.Validators.RegisterDtoValidator>();
+
+// Redis connection
+builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var redisConnection = configuration.GetConnectionString("Redis") ?? "localhost:6379";
+    return StackExchange.Redis.ConnectionMultiplexer.Connect(redisConnection);
+});
+
+// Service registrations
+builder.Services.AddScoped<SmartCodeReview.Mssql.Services.Interfaces.ICodeReviewService, 
+    SmartCodeReview.Mssql.Services.Services.CodeReviewService>();
+builder.Services.AddScoped<SmartCodeReview.Mssql.Services.Interfaces.IGitHubService, 
+    SmartCodeReview.Mssql.Services.Services.GitHubService>();
+builder.Services.AddSingleton<SmartCodeReview.Mssql.Services.Interfaces.IWebhookQueueService, 
+    SmartCodeReview.Mssql.Services.Services.WebhookQueueService>();
+builder.Services.AddScoped<SmartCodeReview.Mssql.Services.Interfaces.IAIService, 
+    SmartCodeReview.Mssql.Services.Services.OllamaAIService>();
+
+// Background services
+builder.Services.AddHostedService<SmartCodeReview.Api.BackgroundServices.WebhookProcessorWorker>();
 
 // Database connection
 builder.Services.AddDbContext<SmartCodeReviewDbContext>(options =>
@@ -62,6 +89,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Middleware'ler
+app.UseGlobalExceptionHandler();
+app.UseRequestLogging();
 app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
@@ -82,6 +112,9 @@ app.MapGet("/health", () => Results.Ok(new
 }));
 
 Log.Information("SmartCodeReview API başlatılıyor...");
+
+// Seed data oluştur
+await app.SeedDataAsync();
 
 app.Run();
 

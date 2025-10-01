@@ -44,7 +44,7 @@ Bu proje, yazılım geliştirme süreçlerinde kod kalitesini artırmak ve insan
 |--------|-----------|
 | Backend | ASP.NET Core 8 |
 | Frontend | ASP.NET Core MVC + Bootstrap 5 (Opsiyonel) |
-| AI & Kod Analizi | OpenAI GPT-4/5 API, Tree-sitter, ESLint, Pylint, SonarQube |
+| AI & Kod Analizi | **Ollama (Ücretsiz, Local AI)**, Gemini (Ücretsiz Tier), HuggingFace (Ücretsiz) |
 | Authentication | ASP.NET Core Identity |
 | Veritabanı | Microsoft SQL Server (MSSQL) |
 | ORM & Migration | Entity Framework Core + FluentMigrator |
@@ -350,6 +350,17 @@ dotnet run --project src/Presentation/Api/SmartCodeReview.Api
 https://localhost:7001/swagger
 ```
 
+### 9. Ücretsiz AI Kurulumu:
+- **Ollama kurulumu:** [FREE_AI_SETUP.md](docs/FREE_AI_SETUP.md) - Tamamen ücretsiz AI servisleri
+- Model indirme: `ollama pull deepseek-coder`
+
+### 10. API Dokümantasyonu:
+Detaylı API dokümantasyonu için:
+- [API Dokümantasyonu](docs/API_DOCUMENTATION.md) - Tüm endpoint'ler ve response örnekleri
+- [Swagger Örnekleri](docs/SWAGGER_EXAMPLES.md) - Swagger UI kullanım kılavuzu
+- [Proje Durumu](docs/PROJECT_STATUS.md) - Güncel proje durumu
+- [Hızlı Başlangıç](docs/QUICK_START.md) - Adım adım kurulum
+
 ---
 
 ## 16. Proje Özellikleri ve Avantajları
@@ -376,19 +387,48 @@ https://localhost:7001/swagger
 
 ---
 
-## 17. Sonuç
+## 17. Ücretsiz AI Servisleri 🆓
+
+Bu proje **tamamen ücretsiz** AI servisleri kullanır:
+
+### 🏆 Ollama (Önerilen - Tamamen Ücretsiz)
+- **Maliyet:** 🟢 Tamamen ücretsiz, sınırsız kullanım
+- **Gizlilik:** 🟢 Kodunuz asla dışarı çıkmaz (local AI)
+- **Hız:** 🟢 Çok hızlı (local çalışır)
+- **Kurulum:** `curl -fsSL https://ollama.ai/install.sh | sh`
+- **Model:** `ollama pull deepseek-coder`
+- **Kullanım:** Docker Compose ile otomatik başlar
+
+### 🌟 Alternatif Ücretsiz AI'lar
+- **Google Gemini:** Ücretsiz tier (60 req/dakika)
+- **Hugging Face:** Ücretsiz API (sınırlı)
+
+**Detaylı kurulum:** [FREE_AI_SETUP.md](docs/FREE_AI_SETUP.md)
+
+---
+
+## 18. Sonuç
 
 Smart Code Review Tool projesi, **Clean Architecture** ve **ASP.NET Core 8** kullanarak:
 
 - ✅ Modern ve ölçeklenebilir bir mimari
 - ✅ Katmanlı ve bakımı kolay kod yapısı
 - ✅ Merkezi paket yönetimi (Central Package Management)
-- ✅ AI destekli kod inceleme (OpenAI GPT-4)
+- ✅ **Tamamen ücretsiz AI** destekli kod inceleme (**Ollama**)
 - ✅ GitHub/GitLab entegrasyonu (Octokit)
 - ✅ Güvenli ve performanslı altyapı
 - ✅ FluentMigrator ile database migration
-- ✅ Quartz.NET ile background job'lar
-- ✅ Redis caching desteği
+- ✅ Redis Queue + Background Worker sistemi
+- ✅ Docker Compose ile kolay kurulum
 - ✅ Serilog ile structured logging
 
-ile geliştirilecektir. 🚀
+ile geliştirilmiştir. 🚀
+
+## 🎯 Öne Çıkan Özellikler
+
+1. **💰 %100 Ücretsiz AI:** Ollama ile sınırsız kod analizi
+2. **🔒 Gizlilik:** Kodunuz asla dışarı çıkmaz
+3. **⚡ Hızlı:** Local AI, saniyeler içinde analiz
+4. **🔄 Otomatik:** Webhook → Queue → AI Analysis → PR Comment
+5. **📊 Dashboard:** Kod kalitesi istatistikleri
+6. **🐳 Docker:** Tek komutla tüm servisler hazır
