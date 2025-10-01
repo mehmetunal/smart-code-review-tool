@@ -15,8 +15,9 @@
 2. [Webhook API](#webhook-api)
 3. [Code Review API](#code-review-api)
 4. [Project API](#project-api)
-5. [Statistics API](#statistics-api)
-6. [Health Check API](#health-check-api)
+5. [API Configuration API](#api-configuration-api)
+6. [Statistics API](#statistics-api)
+7. [Health Check API](#health-check-api)
 
 ---
 
@@ -645,6 +646,245 @@ Tüm API yanıtları aşağıdaki standart formatı kullanır:
 | **403** | Forbidden - Yetki yetersiz |
 | **404** | Not Found - Kaynak bulunamadı |
 | **500** | Internal Server Error - Sunucu hatası |
+
+---
+
+## ⚙️ API Configuration API
+
+API provider'ları (GitHub, AI servisleri) yönetmek için kullanılır.
+
+### **POST** `/api/apiconfiguration` - API Konfigürasyonu Oluştur
+
+Yeni bir API provider konfigürasyonu oluşturur.
+
+**Headers:**
+```
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "apiType": "GitHub",
+  "apiName": "GitHub API",
+  "apiKey": "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "webhookSecret": "my-super-secret-webhook-key-12345",
+  "model": "gpt-4",
+  "baseUrl": "https://api.github.com",
+  "isActive": true,
+  "isDefault": false,
+  "description": "GitHub API entegrasyonu"
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "apiType": "GitHub",
+    "apiName": "GitHub API",
+    "apiKey": "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "webhookSecret": "my-super-secret-webhook-key-12345",
+    "model": "gpt-4",
+    "baseUrl": "https://api.github.com",
+    "isActive": true,
+    "isDefault": false,
+    "description": "GitHub API entegrasyonu",
+    "userId": "456e7890-e89b-12d3-a456-426614174001",
+    "createdDate": "2025-01-01T10:00:00Z",
+    "updatedDate": null
+  }
+}
+```
+
+### **GET** `/api/apiconfiguration/{id}` - Konfigürasyon Getir
+
+Belirli bir API konfigürasyonunu getirir.
+
+**Headers:**
+```
+Authorization: Bearer {jwt_token}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "apiType": "GitHub",
+    "apiName": "GitHub API",
+    "apiKey": "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "webhookSecret": "my-super-secret-webhook-key-12345",
+    "isActive": true,
+    "createdDate": "2025-01-01T10:00:00Z"
+  }
+}
+```
+
+### **GET** `/api/apiconfiguration/by-type/{apiType}` - Türüne Göre Getir
+
+Belirli bir API türüne ait aktif konfigürasyonu getirir.
+
+**Parameters:**
+- `apiType` (string): API türü (GitHub, Gemini, HuggingFace, OpenAI, Ollama)
+
+**Headers:**
+```
+Authorization: Bearer {jwt_token}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "apiType": "GitHub",
+    "apiName": "GitHub API",
+    "apiKey": "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "isActive": true
+  }
+}
+```
+
+### **GET** `/api/apiconfiguration/my-configurations` - Kullanıcı Konfigürasyonları
+
+Kullanıcının tüm API konfigürasyonlarını listeler.
+
+**Query Parameters:**
+- `page` (int, optional): Sayfa numarası (varsayılan: 1)
+- `pageSize` (int, optional): Sayfa boyutu (varsayılan: 10)
+
+**Headers:**
+```
+Authorization: Bearer {jwt_token}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "apiType": "GitHub",
+        "apiName": "GitHub API",
+        "isActive": true,
+        "createdDate": "2025-01-01T10:00:00Z"
+      }
+    ],
+    "totalCount": 1,
+    "page": 1,
+    "pageSize": 10,
+    "totalPages": 1
+  }
+}
+```
+
+### **GET** `/api/apiconfiguration/all-active` - Tüm Aktif Konfigürasyonlar
+
+Sistemdeki tüm aktif API konfigürasyonlarını getirir.
+
+**Headers:**
+```
+Authorization: Bearer {jwt_token}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "apiType": "GitHub",
+      "apiName": "GitHub API",
+      "isActive": true
+    },
+    {
+      "id": "456e7890-e89b-12d3-a456-426614174001",
+      "apiType": "Ollama",
+      "apiName": "Ollama AI",
+      "isActive": true
+    }
+  ]
+}
+```
+
+### **PUT** `/api/apiconfiguration/{id}` - Konfigürasyon Güncelle
+
+Mevcut bir API konfigürasyonunu günceller.
+
+**Headers:**
+```
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "apiType": "GitHub",
+  "apiName": "GitHub API Updated",
+  "apiKey": "ghp_new_token_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "webhookSecret": "new-secret-key",
+  "isActive": true,
+  "description": "Updated GitHub API configuration"
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "apiType": "GitHub",
+    "apiName": "GitHub API Updated",
+    "apiKey": "ghp_new_token_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "isActive": true,
+    "updatedDate": "2025-01-01T11:00:00Z"
+  }
+}
+```
+
+### **DELETE** `/api/apiconfiguration/{id}` - Konfigürasyon Sil
+
+Bir API konfigürasyonunu siler.
+
+**Headers:**
+```
+Authorization: Bearer {jwt_token}
+```
+
+**Response (200):**
+```json
+{
+  "success": true
+}
+```
+
+### **POST** `/api/apiconfiguration/create-defaults` - Varsayılan Konfigürasyonlar (Admin)
+
+Sistem için varsayılan API konfigürasyonlarını oluşturur.
+
+**Headers:**
+```
+Authorization: Bearer {admin_jwt_token}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Varsayılan konfigürasyonlar oluşturuldu"
+}
+```
 
 ---
 

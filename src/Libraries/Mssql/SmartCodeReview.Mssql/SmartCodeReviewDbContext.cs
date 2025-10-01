@@ -22,6 +22,7 @@ public class SmartCodeReviewDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<CodeReview> CodeReviews { get; set; }
     public DbSet<Analysis> Analyses { get; set; }
     public DbSet<FileAnalysis> FileAnalyses { get; set; }
+    public DbSet<ApiConfiguration> ApiConfigurations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

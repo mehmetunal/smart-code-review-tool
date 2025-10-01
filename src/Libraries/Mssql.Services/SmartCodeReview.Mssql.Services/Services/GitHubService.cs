@@ -13,19 +13,41 @@ public class GitHubService : IGitHubService
 {
     private readonly GitHubClient _client;
     private readonly ILogger<GitHubService> _logger;
+    private readonly IApiConfigurationService _apiConfigService;
 
-    public GitHubService(IConfiguration configuration, ILogger<GitHubService> logger)
+    public GitHubService(
+        IConfiguration configuration, 
+        ILogger<GitHubService> logger,
+        IApiConfigurationService apiConfigService)
     {
         _logger = logger;
+        _apiConfigService = apiConfigService;
         
         // GitHub client oluştur
         _client = new GitHubClient(new ProductHeaderValue("SmartCodeReview"));
-        
-        // Token varsa ayarla
-        var githubToken = configuration["GitHub:Token"];
-        if (!string.IsNullOrEmpty(githubToken))
+    }
+
+    /// <summary>
+    /// GitHub token'ını database'den alır ve client'a ayarlar
+    /// </summary>
+    private async Task<bool> SetGitHubTokenAsync()
+    {
+        try
         {
-            _client.Credentials = new Credentials(githubToken);
+            var githubConfig = await _apiConfigService.GetActiveByTypeAsync("GitHub");
+            if (githubConfig.IsSuccess && !string.IsNullOrEmpty(githubConfig.Data?.ApiKey))
+            {
+                _client.Credentials = new Credentials(githubConfig.Data.ApiKey);
+                return true;
+            }
+            
+            _logger.LogWarning("GitHub API konfigürasyonu bulunamadı veya token boş");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GitHub token alınamadı");
+            return false;
         }
     }
 
@@ -33,6 +55,11 @@ public class GitHubService : IGitHubService
     {
         try
         {
+            // GitHub token'ını kontrol et
+            if (!await SetGitHubTokenAsync())
+            {
+                return ServiceResult<string>.Fail("GitHub API konfigürasyonu bulunamadı", 400);
+            }
             var pullRequest = await _client.PullRequest.Get(owner, repo, pullRequestNumber);
             
             // Diff URL'den diff içeriğini al
@@ -67,6 +94,11 @@ public class GitHubService : IGitHubService
     {
         try
         {
+            // GitHub token'ını kontrol et
+            if (!await SetGitHubTokenAsync())
+            {
+                return ServiceResult<PullRequestInfo>.Fail("GitHub API konfigürasyonu bulunamadı", 400);
+            }
             var pr = await _client.PullRequest.Get(owner, repo, pullRequestNumber);
             
             var info = new PullRequestInfo
@@ -108,6 +140,11 @@ public class GitHubService : IGitHubService
     {
         try
         {
+            // GitHub token'ını kontrol et
+            if (!await SetGitHubTokenAsync())
+            {
+                return ServiceResult.Fail("GitHub API konfigürasyonu bulunamadı", 400);
+            }
             // Genel yorum (issue comment olarak)
             await _client.Issue.Comment.Create(owner, repo, pullRequestNumber, body);
 
@@ -125,6 +162,11 @@ public class GitHubService : IGitHubService
     {
         try
         {
+            // GitHub token'ını kontrol et
+            if (!await SetGitHubTokenAsync())
+            {
+                return ServiceResult<List<FileChange>>.Fail("GitHub API konfigürasyonu bulunamadı", 400);
+            }
             var files = await _client.PullRequest.Files(owner, repo, pullRequestNumber);
             
             var fileChanges = files.Select(f => new FileChange

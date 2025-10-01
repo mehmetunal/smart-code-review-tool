@@ -357,6 +357,7 @@ https://localhost:7001/swagger
 ### 10. API Dokümantasyonu:
 Detaylı API dokümantasyonu için:
 - [API Dokümantasyonu](docs/API_DOCUMENTATION.md) - Tüm endpoint'ler ve response örnekleri
+- [API Provider Kurulum](docs/API_PROVIDER_SETUP.md) - GitHub, AI servisleri kurulum kılavuzu
 - [Swagger Örnekleri](docs/SWAGGER_EXAMPLES.md) - Swagger UI kullanım kılavuzu
 - [Proje Durumu](docs/PROJECT_STATUS.md) - Güncel proje durumu
 - [Hızlı Başlangıç](docs/QUICK_START.md) - Adım adım kurulum

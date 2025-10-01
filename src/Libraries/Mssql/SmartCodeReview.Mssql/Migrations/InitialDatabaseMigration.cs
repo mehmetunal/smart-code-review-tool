@@ -109,6 +109,30 @@ public class InitialDatabaseMigration : Migration
         Create.Index("IX_FileAnalyses_CodeReviewId").OnTable("FileAnalyses").OnColumn("CodeReviewId");
         Create.Index("IX_FileAnalyses_Language").OnTable("FileAnalyses").OnColumn("Language");
 
+        // API Configurations tablosu
+        Create.Table("ApiConfigurations")
+            .WithColumn("Id").AsGuid().PrimaryKey()
+            .WithColumn("ApiType").AsString(50).NotNullable()
+            .WithColumn("ApiName").AsString(100).NotNullable()
+            .WithColumn("ApiKey").AsString(500).NotNullable()
+            .WithColumn("WebhookSecret").AsString(500).Nullable()
+            .WithColumn("Model").AsString(100).Nullable()
+            .WithColumn("BaseUrl").AsString(500).Nullable()
+            .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
+            .WithColumn("IsDefault").AsBoolean().NotNullable().WithDefaultValue(false)
+            .WithColumn("Description").AsString(1000).Nullable()
+            .WithColumn("UserId").AsGuid().Nullable()
+            .WithColumn("CreatedDate").AsDateTime().NotNullable()
+            .WithColumn("UpdatedDate").AsDateTime().Nullable()
+            .WithColumn("IsDeleted").AsBoolean().NotNullable().WithDefaultValue(false)
+            .WithColumn("CreatorUserId").AsGuid().Nullable()
+            .WithColumn("UpdatedByUserId").AsGuid().Nullable();
+
+        // API Configurations için index'ler
+        Create.Index("IX_ApiConfigurations_ApiType").OnTable("ApiConfigurations").OnColumn("ApiType");
+        Create.Index("IX_ApiConfigurations_IsActive").OnTable("ApiConfigurations").OnColumn("IsActive");
+        Create.Index("IX_ApiConfigurations_UserId").OnTable("ApiConfigurations").OnColumn("UserId");
+
         // Foreign key'ler
         Create.ForeignKey("FK_CodeReviews_Projects")
             .FromTable("CodeReviews").ForeignColumn("ProjectId")

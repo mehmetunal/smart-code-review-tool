@@ -17,25 +17,54 @@ public class OllamaAIService : IAIService
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OllamaAIService> _logger;
-    private readonly string _baseUrl;
-    private readonly string _model;
+    private readonly IApiConfigurationService _apiConfigService;
+    private string _baseUrl = "http://localhost:11434";
+    private string _model = "deepseek-coder";
 
     public OllamaAIService(
         IConfiguration configuration,
-        ILogger<OllamaAIService> logger)
+        ILogger<OllamaAIService> logger,
+        IApiConfigurationService apiConfigService)
     {
         _logger = logger;
+        _apiConfigService = apiConfigService;
         _httpClient = new HttpClient();
-        _baseUrl = configuration["Ollama:BaseUrl"] ?? "http://localhost:11434";
-        _model = configuration["Ollama:Model"] ?? "deepseek-coder";
         _httpClient.BaseAddress = new Uri(_baseUrl);
         _httpClient.Timeout = TimeSpan.FromMinutes(5);
+    }
+
+    /// <summary>
+    /// Ollama konfigürasyonunu database'den alır
+    /// </summary>
+    private async Task<bool> LoadOllamaConfigAsync()
+    {
+        try
+        {
+            var ollamaConfig = await _apiConfigService.GetActiveByTypeAsync("Ollama");
+            if (ollamaConfig.IsSuccess)
+            {
+                _baseUrl = ollamaConfig.Data?.BaseUrl ?? "http://localhost:11434";
+                _model = ollamaConfig.Data?.Model ?? "deepseek-coder";
+                _httpClient.BaseAddress = new Uri(_baseUrl);
+                return true;
+            }
+            
+            _logger.LogWarning("Ollama konfigürasyonu bulunamadı, varsayılan değerler kullanılıyor");
+            return true; // Varsayılan değerlerle devam et
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Ollama konfigürasyonu alınamadı, varsayılan değerler kullanılıyor");
+            return true; // Varsayılan değerlerle devam et
+        }
     }
 
     public async Task<ServiceResult<List<Analysis>>> AnalyzeCodeChangesAsync(string diff, string fileName, string language)
     {
         try
         {
+            // Ollama konfigürasyonunu yükle
+            await LoadOllamaConfigAsync();
             var prompt = $@"Sen bir kod inceleme uzmanısın. Aşağıdaki kod değişikliklerini analiz et ve sorunları tespit et.
 
 Dosya: {fileName}

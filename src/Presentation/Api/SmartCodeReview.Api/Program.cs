@@ -41,6 +41,8 @@ builder.Services.AddSingleton<SmartCodeReview.Mssql.Services.Interfaces.IWebhook
     SmartCodeReview.Mssql.Services.Services.WebhookQueueService>();
 builder.Services.AddScoped<SmartCodeReview.Mssql.Services.Interfaces.IAIService, 
     SmartCodeReview.Mssql.Services.Services.OllamaAIService>();
+builder.Services.AddScoped<SmartCodeReview.Mssql.Services.Interfaces.IApiConfigurationService, 
+    SmartCodeReview.Mssql.Services.Services.ApiConfigurationService>();
 
 // Background services
 builder.Services.AddHostedService<SmartCodeReview.Api.BackgroundServices.WebhookProcessorWorker>();
