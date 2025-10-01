@@ -43,25 +43,23 @@ Bu proje, yazılım geliştirme süreçlerinde kod kalitesini artırmak ve insan
 | Katman | Teknoloji |
 |--------|-----------|
 | Backend | ASP.NET Core 8 |
-| Framework | Maggsoft Framework |
-| Frontend | ASP.NET Core MVC + Bootstrap 5 |
+| Frontend | ASP.NET Core MVC + Bootstrap 5 (Opsiyonel) |
 | AI & Kod Analizi | OpenAI GPT-4/5 API, Tree-sitter, ESLint, Pylint, SonarQube |
-| Authentication | ASP.NET Core Identity + Maggsoft.Core |
+| Authentication | ASP.NET Core Identity |
 | Veritabanı | Microsoft SQL Server (MSSQL) |
-| ORM & Migration | Maggsoft.Data + Maggsoft.Mssql + FluentMigrator |
+| ORM & Migration | Entity Framework Core + FluentMigrator |
 | Validation | FluentValidation |
-| Caching | Maggsoft.Cache + Maggsoft.Cache.MemoryCache |
-| Logging | Serilog + Maggsoft.Logging |
+| Caching | IMemoryCache / IDistributedCache |
+| Logging | Serilog |
 | API Documentation | Swagger (OpenAPI) |
-| Services | Maggsoft.Services + Maggsoft.Mssql.Services |
-| Endpoints | Maggsoft.Endpoints |
 | Package Management | Central Package Management (Directory.Packages.props) |
+| Background Jobs | Quartz.NET |
 | CI/CD | GitHub Actions / GitLab CI |
 
 ---
 
-## 5. Backend Mimarisi (Maggsoft Framework ile Katmanlı Mimari)
-Proje, **Maggsoft Framework** kullanarak katmanlı mimari prensiplerine göre geliştirilecektir (TrinkEmlak yapısına benzer):
+## 5. Backend Mimarisi (Katmanlı Mimari)
+Proje, **Clean Architecture** prensiplerine göre katmanlı mimari ile geliştirilecektir:
 
 ### Proje Yapısı:
 ```
@@ -80,14 +78,14 @@ SmartCodeReview/
 │       └── Api/
 │           └── SmartCodeReview.Api/            # API Controllers
 ├── docs/                                        # Dokümantasyonlar
-├── Directory.Packages.props                     # Central Package Management (Maggsoft paketleri)
+├── Directory.Packages.props                     # Central Package Management
 └── SmartCodeReview.sln
 ```
 
 ### Katmanlar:
 1. **Data Layer (Veri Katmanı) - `Libraries/Data/`**
    - Entity'ler (CodeReview, PullRequest, Analysis, User, vb.)
-   - BaseEntity inheritance (Maggsoft.Data'dan)
+   - BaseEntity (Id, CreatedDate, UpdatedDate, IsDeleted, vb.)
    - Enum'lar (CodeQualityScore, ReviewStatus, SecurityLevel)
    - Domain modelleri
 
@@ -119,13 +117,12 @@ SmartCodeReview/
    - Authentication ve Authorization
    - Swagger documentation
 
-### Maggsoft Framework Kullanımı:
-- **Maggsoft.Data**: Repository pattern ve base entity
-- **Maggsoft.Mssql**: Database connection ve context
-- **Maggsoft.Services**: Service layer base class'ları
-- **Maggsoft.Cache**: Caching infrastructure
-- **Maggsoft.Endpoints**: API endpoint helpers
-- **Maggsoft.Logging**: Structured logging
+### Kullanılan Pattern'ler:
+- **Repository Pattern**: Veri erişim katmanı soyutlaması
+- **Unit of Work Pattern**: Transaction yönetimi
+- **Dependency Injection**: Loose coupling
+- **SOLID Principles**: Clean code prensipler
+- **BaseEntity**: Ortak property'ler için temel sınıf
 
 ### Admin Panel:
 - Ayrı bir web projesi olarak yönetim paneli (opsiyonel)
@@ -199,21 +196,6 @@ SmartCodeReview/
 
 ### NuGet Paketleri:
 
-#### Maggsoft Framework Paketleri:
-- **Maggsoft.Core** - Framework core
-- **Maggsoft.Data** - Data access layer
-- **Maggsoft.Framework** - Main framework
-- **Maggsoft.Data.Mssql** - MSSQL data provider
-- **Maggsoft.Mssql** - MSSQL infrastructure
-- **Maggsoft.Cache** - Cache infrastructure
-- **Maggsoft.Cache.MemoryCache** - Memory cache implementation
-- **Maggsoft.Services** - Service layer base
-- **Maggsoft.Aspect.Core** - AOP support
-- **Maggsoft.Mssql.Services** - MSSQL services
-- **Maggsoft.Endpoints** - API endpoints
-- **Maggsoft.Dto.Mssql** - DTO infrastructure
-- **Maggsoft.Logging** - Logging infrastructure
-
 #### Microsoft Paketleri:
 - **Microsoft.AspNetCore.Identity.EntityFrameworkCore** - Identity sistemi
 - **Microsoft.EntityFrameworkCore.SqlServer** - EF Core SQL Server provider
@@ -226,16 +208,17 @@ SmartCodeReview/
 
 #### Diğer Paketler:
 - **FluentValidation.AspNetCore** - Request validation
-- **FluentMigrator** - Database migration
+- **FluentMigrator** - Database migration (5.2.0)
 - **FluentMigrator.Runner** - Migration runner
 - **FluentMigrator.Runner.SqlServer** - SQL Server support
 - **AutoMapper** - Object mapping
 - **Swashbuckle.AspNetCore** - Swagger/OpenAPI
-- **StackExchange.Redis** - Redis client
+- **StackExchange.Redis** - Redis client (caching)
 - **Bogus** - Test data generation
-- **OpenAI API Client** - AI integration
 - **Octokit** - GitHub API client
 - **Azure.Storage.Blobs** - Azure Blob Storage
+- **Quartz** - Background job scheduler
+- **Quartz.Extensions.Hosting** - Quartz .NET hosting
 
 ### Varsayılan Admin Bilgileri:
 - **Email**: admin@gmail.com
@@ -278,22 +261,21 @@ Proje, **Central Package Management (CPM)** kullanarak tüm NuGet paketlerini me
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <!-- Maggsoft Framework Paketleri -->
-    <PackageVersion Include="Maggsoft.Core" Version="2.1.6" />
-    <PackageVersion Include="Maggsoft.Data" Version="2.1.7" />
-    <PackageVersion Include="Maggsoft.Framework" Version="2.5.8" />
-    <PackageVersion Include="Maggsoft.Data.Mssql" Version="2.1.0" />
-    <PackageVersion Include="Maggsoft.Mssql" Version="2.0.12" />
-    <PackageVersion Include="Maggsoft.Cache" Version="2.0.22" />
-    
     <!-- Microsoft Paketleri -->
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
+    
+    <!-- Serilog Paketleri -->
+    <PackageVersion Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageVersion Include="Serilog.Sinks.MSSqlServer" Version="6.5.0" />
     
     <!-- Diğer Paketler -->
     <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
-    <PackageVersion Include="FluentMigrator" Version="6.2.0" />
-    <PackageVersion Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageVersion Include="FluentMigrator" Version="5.2.0" />
+    <PackageVersion Include="AutoMapper" Version="13.0.1" />
+    <PackageVersion Include="Octokit" Version="13.0.1" />
+    <PackageVersion Include="Quartz" Version="3.8.0" />
     <!-- ... -->
   </ItemGroup>
 </Project>
@@ -309,9 +291,9 @@ Proje, **Central Package Management (CPM)** kullanarak tüm NuGet paketlerini me
 ```xml
 <!-- Proje dosyasında sadece paket adı belirtilir -->
 <ItemGroup>
-  <PackageReference Include="Maggsoft.Core" />
-  <PackageReference Include="Maggsoft.Data" />
-  <!-- Version belirtmeye gerek yok! -->
+  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+  <PackageReference Include="Serilog.AspNetCore" />
+  <!-- Version belirtmeye gerek yok! Directory.Packages.props'tan alınır -->
 </ItemGroup>
 ```
 
@@ -372,13 +354,12 @@ https://localhost:7001/swagger
 
 ## 16. Proje Özellikleri ve Avantajları
 
-### Maggsoft Framework Kullanımının Avantajları:
-✅ **Hazır Altyapı**: Repository pattern, base entity, service layer hazır
-✅ **Hızlı Geliştirme**: Boilerplate kod yazmaya gerek yok
-✅ **Tutarlılık**: Standart mimari ve pattern'ler
-✅ **Cache Desteği**: Built-in cache infrastructure
-✅ **Logging**: Structured logging desteği
-✅ **Migration**: FluentMigrator entegrasyonu
+### Clean Architecture Avantajları:
+✅ **Bağımlılık Yönetimi**: Katmanlar arası doğru bağımlılık yönü
+✅ **Test Edilebilirlik**: Her katman izole test edilebilir
+✅ **Esneklik**: Framework bağımsız iş mantığı
+✅ **Bakım Kolaylığı**: Değişikliklerin etki alanı sınırlı
+✅ **Genişletilebilirlik**: Yeni özellikler kolay eklenir
 
 ### Katmanlı Mimari Avantajları:
 ✅ **Separation of Concerns**: Her katman kendi sorumluluğuna odaklanır
@@ -397,13 +378,17 @@ https://localhost:7001/swagger
 
 ## 17. Sonuç
 
-Smart Code Review Tool projesi, **Maggsoft Framework** ve **TrinkEmlak benzeri proje yapısı** kullanarak:
+Smart Code Review Tool projesi, **Clean Architecture** ve **ASP.NET Core 8** kullanarak:
 
 - ✅ Modern ve ölçeklenebilir bir mimari
 - ✅ Katmanlı ve bakımı kolay kod yapısı
-- ✅ Merkezi paket yönetimi
-- ✅ AI destekli kod inceleme
-- ✅ GitHub/GitLab entegrasyonu
+- ✅ Merkezi paket yönetimi (Central Package Management)
+- ✅ AI destekli kod inceleme (OpenAI GPT-4)
+- ✅ GitHub/GitLab entegrasyonu (Octokit)
 - ✅ Güvenli ve performanslı altyapı
+- ✅ FluentMigrator ile database migration
+- ✅ Quartz.NET ile background job'lar
+- ✅ Redis caching desteği
+- ✅ Serilog ile structured logging
 
 ile geliştirilecektir. 🚀

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="Bogus" />
+    <PackageReference Include="Octokit" />
+    <PackageReference Include="Azure.Storage.Blobs" />
+    <PackageReference Include="StackExchange.Redis" />
+    <PackageReference Include="Quartz" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Data\SmartCodeReview.Data.Mssql\SmartCodeReview.Data.Mssql.csproj" />
+    <ProjectReference Include="..\..\Dto\SmartCodeReview.Dto.Mssql\SmartCodeReview.Dto.Mssql.csproj" />
+    <ProjectReference Include="..\..\Mssql\SmartCodeReview.Mssql\SmartCodeReview.Mssql.csproj" />
+  </ItemGroup>
+
+</Project>
+
